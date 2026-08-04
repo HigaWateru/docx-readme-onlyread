@@ -1,0 +1,18 @@
+Library
+	React Router: react-router-dom
+	Json server: json-server@0.17.4
+	Axios: axios
+	Redux toolkit: @reduxjs/toolkit react-redux @types/react-redux
+	cloudinary-react cloudinary
+
+
+UI
+	Tailwind css: tailwindcss @tailwindcss/vite
+	Ant Design: antd --save
+	Material UI: @mui/material @emotion/react @emotion/styled
+
+
+Icon
+	Material UI: @mui/icons-material
+	Lucide: lucide-react
+	Ant Design: @ant-design/icons@5.x --save
