@@ -1,6 +1,6 @@
-# AI Integration Foundation: LLM, Agents, RAG & MCP
+# AI Integration Foundation: OpenAI với Java/Spring Boot
 
-Mục tiêu của chương này là giúp bạn thiết kế, xây dựng và vận hành các tính năng AI có kiểm soát trong sản phẩm thật. Học theo thứ tự: **LLM -> structured output/function calling -> embeddings/vector DB -> RAG -> Agent -> ChatOps -> observability/evaluation -> MCP**.
+Mục tiêu của chương này là giúp bạn thiết kế, xây dựng và vận hành tính năng AI có kiểm soát trong sản phẩm Java. Stack chính: **OpenAI API + Java 17/21 + Spring Boot + Spring AI hoặc OpenAI Java SDK**. Học theo thứ tự: **LLM -> structured output/tool calling -> embeddings/vector DB -> RAG -> workflow/agent -> observability/evaluation -> MCP**.
 
 ---
 
@@ -11,7 +11,7 @@ Mục tiêu của chương này là giúp bạn thiết kế, xây dựng và v�
 - **LLM (Large Language Model)**: mô hình dự đoán token tiếp theo dựa trên ngữ cảnh. Nó tạo ra câu trả lời có xác suất cao, không phải cơ sở dữ liệu sự thật.
 - **Token, context window, temperature**: token là đơn vị xử lý; context window là giới hạn đầu vào + đầu ra; temperature điều chỉnh độ ngẫu nhiên.
 - **Prompt**: instruction, context, examples và output format. Prompt không phải là ranh giới bảo mật.
-- **Chat completion**: request thường gồm model, messages, temperature, max output tokens và metadata.
+- **OpenAI Responses API**: giao diện chính cho model, input, structured output và tool calling; không hard-code API key trong source.
 - **Chi phí và độ trễ**: phụ thuộc input tokens, output tokens, model, số lần retry và các bước retrieval/tool.
 
 ### Intermediate: làm cho đầu ra đáng tin cậy
@@ -25,7 +25,7 @@ Mục tiêu của chương này là giúp bạn thiết kế, xây dựng và v�
 ### Advanced: hệ thống có hành động và quan sát được
 
 - **AI Agent**: vòng lặp gồm mục tiêu, lập kế hoạch, gọi công cụ, quan sát kết quả và quyết định bước kế tiếp.
-- **LangChain**: primitive để xây prompt, model, retriever, tool, chain/graph và agent. Dùng abstraction khi nó làm rõ kiến trúc, không dùng để che giấu control flow.
+- **Spring AI**: abstraction theo hệ sinh thái Spring cho ChatClient, chat model, structured output, tool calling, embeddings và vector store. Dùng abstraction khi nó làm rõ kiến trúc, không dùng để che giấu control flow.
 - **Langfuse**: tracing, prompt management, token/cost tracking, scores và dataset để đánh giá ứng dụng LLM.
 - **ChatOps**: đưa workflow vận hành vào Slack/Teams/Discord với quyền, approval, audit log và idempotency.
 - **Evaluation**: đo correctness, groundedness, tool success rate, latency, cost, refusal và security regression.
@@ -62,11 +62,11 @@ User / Slack / Teams / Web UI
               |
        Auth + Policy + Rate Limit
               |
-       AI Orchestrator / Agent
+      Spring Boot AI Orchestrator
         /        |          \\
    LLM call   Retriever     Tools
       |          |            |
- Model Gateway  Vector DB   APIs / MCP Servers
+ OpenAI API     Vector DB   APIs / MCP Servers
       |          |            |
       +----------+------------+
                  |
@@ -130,6 +130,68 @@ OUTPUT SCHEMA
 - Tách model cho embedding khỏi model sinh văn bản; embedding model phải ổn định trong cả pipeline.
 - Pin model/version khi cần reproducibility và ghi model vào trace.
 
+### Tích hợp OpenAI trong Spring Boot
+
+### Chọn lớp tích hợp
+
+- **Spring AI** phù hợp khi ứng dụng cần `ChatClient`, DTO mapping, tool calling, embeddings và vector store theo cách quen thuộc của Spring.
+- **OpenAI Java SDK** phù hợp khi cần dùng trực tiếp capability/API mới của OpenAI hoặc cần kiểm soát request, response và error model ở mức thấp hơn.
+- Không trộn hai client cho cùng một use case nếu không có lý do rõ ràng; hãy đặt provider sau một interface của application để dễ test và thay thế.
+
+### Dependency và cấu hình cơ bản
+
+Pin Spring AI BOM theo version tương thích với Spring Boot của dự án. Tên artifact có thể thay đổi giữa các major version; với dòng Spring AI hiện hành, starter thường là `spring-ai-starter-model-openai`.
+
+```xml
+<dependency>
+    <groupId>org.springframework.ai</groupId>
+    <artifactId>spring-ai-starter-model-openai</artifactId>
+</dependency>
+```
+
+```yaml
+spring:
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: ${OPENAI_CHAT_MODEL}
+          temperature: 0.2
+```
+
+Không commit `OPENAI_API_KEY`; dùng secret manager ở production. Model, timeout, retry và budget nên là configuration có version, không rải literal trong controller.
+
+### Service trả về structured output
+
+```java
+public record SupportAnswer(String label, double confidence,
+                            boolean needsMoreInfo, String reason) {}
+
+@Service
+public class SupportAiService {
+    private final ChatClient chatClient;
+
+    public SupportAiService(ChatClient.Builder builder) {
+        this.chatClient = builder.build();
+    }
+
+    public SupportAnswer classify(String ticketText) {
+        return chatClient.prompt()
+            .system("Classify the ticket. Use only billing, bug, access, other.")
+            .user(ticketText)
+            .call()
+            .entity(SupportAnswer.class);
+    }
+}
+```
+
+DTO mapping không thay thế validation. Hãy kiểm tra enum, khoảng `confidence`, độ dài chuỗi và trạng thái `needsMoreInfo` trước khi ghi database hoặc kích hoạt workflow.
+
+### Timeout, retry và lỗi
+
+Đặt timeout ở HTTP client, retry có giới hạn chỉ cho lỗi tạm thời (429/5xx hoặc network failure), exponential backoff và circuit breaker. Không retry lỗi validation, authentication, permission hoặc request vượt giới hạn context. Với request dài, cân nhắc queue + job status thay vì giữ HTTP connection mở.
+
 ---
 
 ## 4. Function Calling và Tool Design
@@ -148,29 +210,29 @@ Model **không được tự gọi HTTP, database hay shell**. Application là n
 
 ### Contract mẫu
 
-```typescript
-type ToolContext = {
-  userId: string;
-  requestId: string;
-  roles: string[];
-};
+```java
+public record GetTicketInput(String ticketId) {}
 
-type ToolResult = {
-  ok: boolean;
-  data?: unknown;
-  errorCode?: 'NOT_FOUND' | 'FORBIDDEN' | 'TEMPORARY_FAILURE';
-};
+@Component
+public class SupportTools {
+    private final TicketRepository ticketRepository;
 
-async function getTicket(
-  input: { ticketId: string },
-  context: ToolContext
-): Promise<ToolResult> {
-  if (!context.roles.includes('support.read')) {
-    return { ok: false, errorCode: 'FORBIDDEN' };
-  }
-  return { ok: true, data: await ticketRepository.findSummary(input.ticketId) };
+    public SupportTools(TicketRepository ticketRepository) {
+        this.ticketRepository = ticketRepository;
+    }
+
+    @Tool(description = "Tra cuu thong tin tom tat cua support ticket")
+    public TicketSummary getTicket(GetTicketInput input, ToolContext context) {
+        if (!context.roles().contains("support.read")) {
+            throw new AccessDeniedException("Tool access denied");
+        }
+        return ticketRepository.findSummary(input.ticketId())
+            .orElseThrow(() -> new NoSuchElementException("Ticket not found"));
+    }
 }
 ```
+
+`@Tool` chỉ mô tả contract để model đề xuất lời gọi. Spring service vẫn phải kiểm tra identity, tenant, role và quyền trên resource trước khi truy cập repository.
 
 ### Tool nguy hiểm cần approval
 
@@ -209,18 +271,25 @@ RAG tốt không chỉ là tăng `top_k`: cần đo **recall@k**, precision củ
 
 ### Pseudocode RAG
 
-```python
-def answer(question: str, user: User) -> Answer:
-    query_vector = embed(question)
-    chunks = vector_store.search(
-        query_vector=query_vector,
-        top_k=8,
-        filters={"tenant_id": user.tenant_id, "permissions": {"$contains": user.id}},
-    )
-    context = select_within_budget(chunks, max_tokens=5000)
-    result = llm.generate(build_grounded_prompt(question, context), schema=AnswerSchema)
-    return validate_and_attach_citations(result, chunks)
+```java
+public Answer answer(String question, AuthenticatedUser user) {
+  float[] queryVector = embeddingModel.embed(question);
+  List<Document> chunks = vectorStore.similaritySearch(
+    SearchRequest.query(question)
+      .withTopK(8)
+      .withFilterExpression("tenant_id == '" + user.tenantId() + "'")
+      .withSimilarityThreshold(0.75)
+  );
+  List<Document> context = selectWithinTokenBudget(chunks, 5000);
+  return chatClient.prompt()
+    .system(groundedSystemPrompt())
+    .user(buildQuestionWithContext(question, context))
+    .call()
+    .entity(Answer.class);
+}
 ```
+
+Trong code thật, filter tenant/permission phải được tạo từ dữ liệu đã validate, không nối chuỗi từ input người dùng. `Answer` cần là DTO có schema, còn citation phải trỏ về các chunk đã được retrieval.
 
 ### Chọn vector DB
 
@@ -232,7 +301,7 @@ Vector DB không thay thế database nghiệp vụ. Trạng thái thanh toán, q
 
 ---
 
-## 6. AI Agent và LangChain
+## 6. AI Agent với Spring AI
 
 ### Agent loop
 
@@ -252,12 +321,12 @@ Agent chỉ nên dùng khi cần lựa chọn động giữa nhiều bước ho�
 - trạng thái bền vững, correlation id và resume/retry rõ ràng;
 - human approval cho side effect.
 
-### LangChain nên dùng thế nào
+### Spring AI nên dùng thế nào
 
-- Dùng `PromptTemplate`, model adapter, output parser, retriever và tool interface ở biên của ứng dụng.
+- Dùng `ChatClient`, `ChatModel`, `EmbeddingModel`, `VectorStore` và `@Tool` ở biên tích hợp OpenAI.
 - Giữ domain logic, authorization và transaction trong service của bạn.
-- Với flow nhiều nhánh/trạng thái, cân nhắc graph/state-machine thay vì agent tự do.
-- Pin package, kiểm thử prompt/model adapter và trace từng bước.
+- Với flow nhiều nhánh/trạng thái, dùng workflow/state-machine tường minh thay vì agent tự do.
+- Pin version starter, kiểm thử model adapter và trace từng bước; không để framework tự quyết định policy.
 
 ---
 
@@ -455,7 +524,8 @@ ai-assistant/
 
 - [OpenAI Platform Documentation](https://platform.openai.com/docs)
 - [Anthropic Documentation](https://docs.anthropic.com/)
-- [LangChain Documentation](https://python.langchain.com/docs/)
+- [Spring AI Documentation](https://docs.spring.io/spring-ai/reference/)
+- [OpenAI Java SDK](https://github.com/openai/openai-java)
 - [Langfuse Documentation](https://langfuse.com/docs)
 - [Model Context Protocol](https://modelcontextprotocol.io/)
 - [OWASP Top 10 for LLM Applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/)

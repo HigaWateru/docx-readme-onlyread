@@ -51,7 +51,7 @@ Vận hành, đóng gói, tự động hóa quy trình CI/CD và triển khai �
 
 ### 🧠 7. AI Integration Engineering
 Nền tảng tích hợp LLM vào sản phẩm: RAG, vector database, tool calling, agent, ChatOps, observability với Langfuse và MCP.
-- 🤖 [AI Integration Foundation: LLM, Agents, RAG & MCP](7-AI-Integration/AI-Integration-Foundation.md)
+- 🤖 [AI Integration Foundation: OpenAI với Java/Spring Boot](7-AI-Integration/AI-Integration-Foundation.md)
 
 ---
 
