@@ -10,12 +10,8 @@ Hệ thống tài liệu được phân loại theo các lớp kiến trúc rõ 
 
 ### 🎨 1. Frontend Architecture
 Chứa các tài liệu cốt lõi về xây dựng giao diện người dùng hiện đại, tối ưu hóa hiệu năng render, quản lý state và build tools.
-- 🌐 [HTML & CSS Fundamentals](1-Frontend/HTML-CSS.md)
 - ⚙️ [JavaScript ES6+ & TypeScript Deep Dive](1-Frontend/JavaScript-TypeScript.md)
 - ⚛️ [React Core Mechanics](1-Frontend/React-Core.md)
-- 🔄 [State Management (Redux Toolkit & Context)](1-Frontend/State-Management-Redux.md)
-- 🎨 [Styling & UI Components (Tailwind CSS, AntD, MUI)](1-Frontend/Styling-Tailwind-UI-Libs.md)
-- 📦 [Modern Build Tools (Vite vs Webpack)](1-Frontend/Build-Tools-Vite.md)
 
 ### ☕ 2. Backend Engineering (Java & Spring Ecosystem)
 Chương trình chuyên sâu về phát triển hệ thống backend phân tán, bảo mật, xử lý tác vụ đồng thời và tích hợp hệ thống bên thứ ba.
