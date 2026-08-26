@@ -53,6 +53,10 @@ Vận hành, đóng gói, tự động hóa quy trình CI/CD và triển khai �
 - 🐳 [Docker Containerization](6-DevOps/Docker-Containerization.md)
 - 🛩️ [CI/CD Pipelines & Cloud Infrastructure (AWS)](6-DevOps/CI-CD-AWS-Deployment.md)
 
+### 🧠 7. AI Integration Engineering
+Nền tảng tích hợp LLM vào sản phẩm: RAG, vector database, tool calling, agent, ChatOps, observability với Langfuse và MCP.
+- 🤖 [AI Integration Foundation: LLM, Agents, RAG & MCP](7-AI-Integration/AI-Integration-Foundation.md)
+
 ---
 
 ## 📐 Cấu trúc Chuẩn của Mỗi Chủ Đề
