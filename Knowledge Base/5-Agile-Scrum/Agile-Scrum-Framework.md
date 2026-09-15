@@ -2,9 +2,11 @@
 
 ---
 
+> **Mục tiêu đầu ra:** mô tả đúng vai trò Scrum, viết Sprint Goal/DoD và dùng velocity để lập kế hoạch thực tế.
+
 ## 1. Khái niệm (Difficulty Breakdown)
 
-### # Beginner
+### Beginner
 Ở mức độ cơ bản:
 - **Agile**: Là một tư duy (mindset) quản trị dự án dựa trên 4 tôn chỉ và 12 nguyên lý của **Tuyên ngôn Agile (Agile Manifesto)**, ưu tiên tính linh hoạt, thích ứng nhanh với thay đổi, và bàn giao giá trị sớm cho khách hàng thay vì lập kế hoạch cứng nhắc từ đầu.
 - **Scrum**: Là một framework cụ thể triển khai tư duy Agile phổ biến nhất. Scrum chia quy trình phát triển thành các chu kỳ ngắn, cố định từ 1 đến 4 tuần gọi là **Sprint**.
@@ -13,7 +15,7 @@
   - **Scrum Master (SM)**: Người hỗ trợ (Facilitator) giúp toàn đội hiểu và thực hành đúng Scrum, loại bỏ các rào cản (impediments) cho đội ngũ phát triển.
   - **Developers (Đội ngũ phát triển)**: Tập hợp các kỹ sư trực tiếp xây dựng sản phẩm, tự tổ chức và liên chức năng (Cross-functional - có đủ kỹ năng để hoàn thành công việc).
 
-### # Intermediate
+### Intermediate
 Đi sâu vào quy trình vận hành và ước lượng:
 - **Scrum Events (Các sự kiện chính)**:
   - **Sprint Planning (Lập kế hoạch)**: Họp đầu Sprint để chọn ra các yêu cầu từ Product Backlog đưa vào **Sprint Backlog** cam kết hoàn thành.
@@ -23,7 +25,7 @@
 - **User Story**: Cách mô tả yêu cầu tính năng từ góc nhìn của người dùng cuối: *“Là một [vai trò], tôi muốn [chức năng], để [giá trị nhận được]”*, đi kèm các tiêu chí nghiệm thu rõ ràng (**Acceptance Criteria**).
 - **Story Point & Planning Poker**: Phương pháp ước lượng kích thước/độ phức tạp của User Story dựa trên dãy số Fibonacci (1, 2, 3, 5, 8, 13...). Các thành viên sử dụng bộ bài Planning Poker để đồng thuận đưa ra điểm ước lượng một cách khách quan.
 
-### # Advanced
+### Advanced
 Ở mức độ nâng cao về quản lý số liệu và nợ kỹ thuật:
 - **Scrum Metrics (Các chỉ số đo lường)**:
   - **Velocity (Vận tốc)**: Tổng số Story Points một team hoàn thành trung bình trong một Sprint. Dùng để dự báo kế hoạch bàn giao dài hạn.
@@ -31,7 +33,7 @@
   - **Burnup Chart (Biểu đồ tích lũy)**: Theo dõi tiến độ tích lũy so với tổng phạm vi công việc dự án.
 - **Technical Debt (Nợ kỹ thuật) in Scrum**: Việc bỏ qua chất lượng code, viết unit test hoặc refactoring để kịp tiến độ. Trong Scrum nâng cao, nợ kỹ thuật phải được định lượng và đưa vào Product Backlog dưới dạng các **Refactoring Stories** chiếm khoảng 10-20% dung lượng (Capacity) của mỗi Sprint để xử lý định kỳ.
 
-### # Expert
+### Expert
 Ở mức độ tối thượng (Architect / Agile Coach):
 - **Scaling Agile (Mở rộng Agile)**: Khi dự án có từ 3 đến hàng chục Scrum teams cùng làm một sản phẩm. Ta áp dụng các mô hình:
   - **Scrum of Scrums**: Cuộc họp điều phối giữa đại diện các team.

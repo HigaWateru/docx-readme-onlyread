@@ -2,16 +2,18 @@
 
 ---
 
+> **Mục tiêu đầu ra:** tạo pipeline test-build-deploy có health check, rollback và xác thực AWS bằng OIDC.
+
 ## 1. Khái niệm (Difficulty Breakdown)
 
-### # Beginner
+### Beginner
 Ở mức độ cơ bản:
 - **CI (Continuous Integration - Tích hợp liên tục)**: Quy trình tự động hóa việc build, kiểm thử (unit tests), và merge code của các lập trình viên vào nhánh chính (main branch) nhiều lần trong ngày, đảm bảo code mới không làm hỏng ứng dụng hiện tại.
 - **CD (Continuous Delivery - Chuyển giao liên tục)**: Tự động hóa việc đóng gói ứng dụng (ví dụ sinh Docker Image) và đẩy lên các môi trường Staging/Pre-production. Quá trình deploy lên Production thực tế yêu cầu phê duyệt bằng tay (Manual Approval).
 - **CD (Continuous Deployment - Triển khai liên tục)**: Tự động hóa hoàn toàn quy trình từ khi push code cho tới khi ứng dụng mới được chạy trực tiếp trên Production mà không cần bất kỳ sự can thiệp thủ công nào.
 - **AWS (Amazon Web Services)**: Nền tảng điện toán đám mây cung cấp các dịch vụ như máy chủ ảo (EC2), lưu trữ (S3), và cơ sở dữ liệu (RDS).
 
-### # Intermediate
+### Intermediate
 Đi sâu vào các công cụ và cấu hình thực tế:
 - **CI/CD Pipelines (GitHub Actions / GitLab CI)**: Được định nghĩa bằng tệp cấu hình YAML (ví dụ `.github/workflows/deploy.yml`). Pipeline được kích hoạt tự động theo các sự kiện (Webhook) như `push` hoặc `pull_request`, chạy qua các bước (Jobs) trên các máy ảo chạy ngầm (Runners).
 - **AWS Core Services**:
@@ -20,7 +22,7 @@
   - **RDS (Relational Database Service)**: Dịch vụ cơ sở dữ liệu quan hệ được quản lý hoàn toàn (tự động backup, vá lỗi bảo mật).
   - **IAM (Identity and Access Management)**: Quản lý quyền truy cập của người dùng và các dịch vụ AWS bằng cách cấp các **IAM Role** và **Access Keys**.
 
-### # Advanced
+### Advanced
 Ở mức độ tự động hóa và tối ưu hóa hạ tầng nâng cao:
 - **Deployment Strategies (Chiến lược triển khai)**:
   - **Rolling Update**: Thay thế dần các instance cũ bằng instance mới. Đơn giản nhất nhưng trong quá trình deploy sẽ tồn tại song song cả 2 phiên bản cũ và mới.
@@ -28,7 +30,7 @@
   - **Canary Deployment**: Triển khai phiên bản mới cho một nhóm nhỏ người dùng thử nghiệm trước (ví dụ 5% traffic). Nếu không có lỗi, tăng dần tỷ lệ lên 100%.
 - **Terraform (Infrastructure as Code - IaC)**: Công cụ khai báo bằng mã nguồn (HCL - HashiCorp Configuration Language) giúp tự động tạo, thay đổi và quản lý toàn bộ tài nguyên cloud (VPC, Subnets, EC2, RDS) một cách đồng nhất, có thể lưu trữ lịch sử qua Git.
 
-### # Expert
+### Expert
 Ở mức độ tối thượng (Architect):
 - **AWS ECS (Elastic Container Service) & EKS (Elastic Kubernetes Service)**: Nền tảng điều phối container quản lý hàng nghìn microservices. ECS chạy theo mô hình Fargate (Serverless container) loại bỏ việc quản lý máy chủ EC2 phía dưới.
 - **Enterprise VPC Subnetting (Thiết kế mạng an toàn)**: Thiết kế mạng ảo VPC riêng cho doanh nghiệp chia làm 3 lớp Subnet:
@@ -111,6 +113,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   # -------------------------------------------------------------------------
@@ -146,8 +149,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ap-southeast-1
 
       - name: Login to Amazon ECR

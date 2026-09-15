@@ -2,9 +2,11 @@
 
 ---
 
+> **Mục tiêu đầu ra:** viết Dockerfile multi-stage nhỏ gọn, chạy non-root và quản lý cấu hình/runtime an toàn.
+
 ## 1. Khái niệm (Difficulty Breakdown)
 
-### # Beginner
+### Beginner
 Ở mức độ cơ bản:
 - **Containerization (Đóng gói ứng dụng)**: Kỹ thuật đóng gói mã nguồn ứng dụng cùng toàn bộ thư viện, cấu hình, và môi trường chạy phụ thuộc của nó vào một gói duy nhất (Container Image) giúp ứng dụng chạy đồng nhất ở mọi nơi (Local, Staging, Production).
 - **Virtual Machines (VM) vs Containers**: 
@@ -12,7 +14,7 @@
   - **Containers**: Ảo hóa ở cấp độ hệ điều hành. Các container dùng chung nhân hệ điều hành (Shared OS Kernel) của máy host thông qua Docker, cực kỳ nhẹ (vài chục MB) và khởi động trong vài mili-giây.
 - **Docker Image vs Container**: Image là bản chụp tĩnh đóng gói ứng dụng (được coi như Class trong OOP). Container là một thể hiện đang chạy của Image đó (được coi như Instance trong OOP).
 
-### # Intermediate
+### Intermediate
 Đi sâu vào hoạt động của Docker:
 - **Docker Engine Architecture**: Hoạt động theo mô hình Client-Server. Client giao tiếp với daemon **dockerd** qua REST API để kéo, dựng và chạy containers.
 - **Dockerfile Core Instructions**:
@@ -23,13 +25,13 @@
 - **Docker Volume**: Cơ chế lưu trữ dữ liệu bền vững (Persistent Data) nằm ngoài vòng đời của container (tránh mất dữ liệu khi container bị xóa).
 - **Docker Network**: Quản lý giao tiếp mạng giữa các container (`bridge`, `host`, `none`, `overlay`).
 
-### # Advanced
+### Advanced
 Ở mức độ nâng cao:
 - **Multi-stage Builds**: Kỹ thuật chia quá trình build Image làm nhiều giai đoạn. Sử dụng các container build trung gian (đầy đủ SDK nặng như JDK/Maven) để biên dịch mã nguồn, sau đó chỉ sao chép tệp thực thi nhị phân cuối cùng (như `.jar` hoặc compiled binary) sang một Image chạy cực kỳ nhẹ (như JRE hoặc Alpine Linux) giúp giảm kích thước Image xuống 10 lần.
 - **Docker Compose**: Công cụ khai báo bằng tệp YAML (`docker-compose.yml`) giúp điều phối và khởi chạy đồng thời nhiều container liên quan (ví dụ: Spring Boot App + MySQL + Redis) bằng một lệnh duy nhất `docker-compose up`.
 - **Security Best Practices**: Tránh chạy container bằng quyền root mặc định. Khai báo chỉ thị `USER node` hoặc tạo user không có quyền quản trị để bảo vệ máy host nếu container bị tấn công.
 
-### # Expert
+### Expert
 Ở mức độ tối thượng (Architect):
 - **Linux Kernel Namespaces & Control Groups (cgroups)**: Hiểu rõ cơ chế mà Docker sử dụng để cô lập. **Namespaces** cung cấp tính năng cô lập không gian tên (Process ID, Network, Mount points, User). **cgroups** chịu trách nhiệm giới hạn tài nguyên vật lý (CPU, RAM, I/O) mà một container được phép sử dụng.
 - **Docker Storage Drivers & Copy-on-Write (CoW)**: Cách Docker lưu trữ các lớp ảnh (Layers) dựa trên các driver như `overlay2`. Khi container sửa đổi một file có sẵn trong Image, driver sao chép file đó lên phân vùng ghi của container trước khi chỉnh sửa để bảo toàn tính bất biến của các layer phía dưới.
@@ -111,7 +113,7 @@ WORKDIR /build
 
 # Sao chép pom.xml trước để tận dụng Docker cache cho các dependencies
 COPY pom.xml .
-RUN mvc dependency:go-offline -B
+RUN mvn dependency:go-offline -B
 
 # Sao chép mã nguồn và tiến hành compile
 COPY src ./src

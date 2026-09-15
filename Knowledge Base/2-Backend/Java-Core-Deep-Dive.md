@@ -2,14 +2,16 @@
 
 ---
 
+> **Mục tiêu đầu ra:** nắm được JVM memory, concurrency và chọn đúng công cụ đồng bộ cho bài toán Java thực tế.
+
 ## 1. Khái niệm (Difficulty Breakdown)
 
-### # Beginner
+### Beginner
 Ở mức độ cơ bản, **Java** là một ngôn ngữ lập trình hướng đối tượng (OOP), đa nền tảng nhờ vào cơ chế biên dịch ra **Bytecode** (`.class`) thay vì mã máy trực tiếp. Bytecode này sẽ chạy trên **JVM (Java Virtual Machine)** - máy ảo Java đóng vai trò như một lớp trừu tượng giữa code của bạn và hệ điều hành.
 
 Cơ chế quản lý bộ nhớ của Java tự động nhờ vào **Garbage Collector (GC)**, giúp lập trình viên không cần giải phóng bộ nhớ thủ công bằng tay (như `free()` trong C hoặc `delete` trong C++).
 
-### # Intermediate
+### Intermediate
 Đi sâu hơn, bạn cần hiểu cấu trúc bộ nhớ của **JVM Run-Time Data Areas**:
 - **Heap Memory**: Nơi lưu trữ tất cả các đối tượng (Objects) và biến thực thể (Instance variables). Được chia sẻ giữa các luồng (Thread-safe issues occur here).
 - **Stack Memory**: Chứa các biến cục bộ (Local variables) và thông tin gọi hàm (Frame). Mỗi Thread có một Stack riêng biệt (Thread-safe).
@@ -19,14 +21,14 @@ Cơ chế quản lý bộ nhớ của Java tự động nhờ vào **Garbage Col
 - **Young Generation (Eden, S0, S1)**: Nơi đối tượng mới được tạo ra. GC chạy ở đây gọi là **Minor GC**.
 - **Old Generation (Tenured)**: Nơi chứa đối tượng sống sót qua nhiều chu kỳ GC. GC chạy ở đây gọi là **Major/Full GC**.
 
-### # Advanced
+### Advanced
 Ở mức độ nâng cao, ta nghiên cứu **Java Memory Model (JMM)** và **Java Concurrency**:
 - **JMM**: Quy định cách các Thread tương tác thông qua bộ nhớ chung. Nó giải quyết 3 vấn đề chính: **Visibility** (tính hiển thị), **Ordering** (sắp xếp lại lệnh của Compiler/CPU), và **Atomicity** (tính nguyên tử).
 - **Volatile Keyword**: Đảm bảo biến được đọc/ghi trực tiếp từ Main Memory (bộ nhớ chính) thay vì CPU Cache, giải quyết vấn đề *Visibility*, nhưng không đảm bảo *Atomicity*.
 - **Synchronized & ReentrantLock**: Cơ chế Lock để đồng bộ hóa. `ReentrantLock` cung cấp các tính năng nâng cao như *Fairness policy*, *Interruptible lock acquisition*, và *TryLock*.
 - **Thread Pool (ExecutorService)**: Quản lý vòng đời và tái sử dụng các Thread để tránh overhead khi tạo mới Thread liên tục.
 
-### # Expert
+### Expert
 Ở mức độ tối thượng của một Architect:
 - **Garbage Collection Algorithms**: Hiểu rõ sự khác biệt và cấu hình của **G1 (Garbage-First)**, **ZGC (Z Garbage Collector)**. ZGC có thời gian dừng (Pause Time/Stop-The-World) dưới 1ms bất kể kích thước Heap lên tới hàng Terabytes nhờ cơ chế *Colored Pointers* và *Load Barriers*.
 - **Virtual Threads (Java 21 - Project Loom)**: Thay đổi hoàn toàn mô hình Concurrency. Thread truyền thống của Java là **Platform Thread** (ánh xạ 1-1 với OS Thread - rất đắt đỏ). **Virtual Thread** là các luồng siêu nhẹ (M-N mapping) được quản lý bởi JVM, cho phép chạy hàng triệu luồng song song mà không tốn tài nguyên hệ điều hành.

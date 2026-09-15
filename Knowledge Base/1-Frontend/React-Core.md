@@ -2,27 +2,29 @@
 
 ---
 
+> **Mục tiêu đầu ra:** hiểu cách React render, quản lý state/effect và xây dựng custom hook có xử lý request an toàn.
+
 ## 1. Khái niệm (Difficulty Breakdown)
 
-### # Beginner
+### Beginner
 Ở mức độ cơ bản, **React** là một thư viện JavaScript declarative (khai báo), component-based để xây dựng giao diện người dùng. 
 - **Component**: Là các khối độc lập, có thể tái sử dụng để xây dựng giao diện. Component nhận đầu vào là **Props** (bất biến, truyền từ cha xuống) và quản lý trạng thái nội bộ thông qua **State** (có thể thay đổi để kích hoạt việc render lại giao diện).
 - **JSX (JavaScript XML)**: Cú pháp mở rộng giúp bạn viết cấu trúc HTML trực tiếp ngay bên trong JavaScript. JSX sau đó được biên dịch thành các lệnh gọi hàm `React.createElement()`.
 
-### # Intermediate
+### Intermediate
 Đi sâu vào bên dưới bề mặt:
 - **Virtual DOM (VDOM)**: React không cập nhật trực tiếp lên DOM thật (Real DOM) vì thao tác này rất đắt đỏ về hiệu năng. Thay vào đó, React duy trì một bản sao dung lượng nhẹ của DOM thật trong bộ nhớ gọi là Virtual DOM.
 - **Render Lifecycle**: Khi state thay đổi, React tạo ra một cây VDOM mới, so sánh cây mới này với cây cũ (quá trình **Diffing**) để tìm ra sự khác biệt, và chỉ cập nhật những thay đổi đó lên DOM thật (quá trình **Reconciliation**).
 - **React Hooks (useState, useEffect, useContext)**: Cơ chế cho phép Functional Component sử dụng state và các tính năng khác của React mà không cần viết Class Component.
 
-### # Advanced
+### Advanced
 Ở mức độ nâng cao, ta đi vào kiến trúc **React Fiber** (được giới thiệu từ bản React 16):
 - **React Fiber**: Là sự tái cấu trúc hoàn toàn thuật toán điều phối (Reconciler). Cây Virtual DOM truyền thống sử dụng đệ quy đồng bộ (Stack Reconciler), một khi đã chạy thì không thể ngắt quãng, gây đơ giao diện khi render cấu trúc lớn. Fiber chuyển đổi sang cấu trúc dữ liệu dạng **Linked List** hai chiều, cho phép chia nhỏ quá trình render thành các phần việc nhỏ (work units) có thể tạm dừng (pause), hủy bỏ (abort), hoặc thiết lập độ ưu tiên (priority).
 - **Performance Hook Optimization**:
   - `useCallback`: Memoize (ghi nhớ) định nghĩa của một hàm để tránh tạo lại hàm mới ở mỗi chu kỳ render, ngăn việc re-render của component con nhận hàm đó làm prop.
   - `useMemo`: Ghi nhớ kết quả tính toán đắt đỏ để tránh tính toán lại khi các dependency không thay đổi.
 
-### # Expert
+### Expert
 Ở mức độ tối thượng (Architect):
 - **React Server Components (RSC)**: Mô hình kiến trúc hiện đại (Next.js App Router). Component được thực thi trực tiếp trên Server và trả về định dạng JSON mô tả cây VDOM đã được phân tích cho Client. Client nhận dữ liệu này và ghép (merge) vào giao diện Client Component hiện tại mà không mất đi trạng thái (state) UI của Client, giảm kích thước bundle JavaScript tải xuống.
 - **Concurrent Mode & Transitions (`useTransition`, `useDeferredValue`)**: Cho phép React cập nhật UI ở chế độ bất đồng bộ mà không chặn tương tác người dùng. Ví dụ: Khi người dùng gõ vào ô tìm kiếm, thao tác gõ (high priority) được cập nhật ngay, còn kết quả tìm kiếm hiển thị bên dưới (low priority) được tính toán song song ngầm và hiển thị mượt mà không gây giật lag.

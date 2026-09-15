@@ -2,9 +2,11 @@
 
 ---
 
+> **Mục tiêu đầu ra:** phân biệt isolation level, optimistic/pessimistic locking và xử lý lost update/deadlock.
+
 ## 1. Khái niệm (Difficulty Breakdown)
 
-### # Beginner
+### Beginner
 Ở mức độ cơ bản, một **Transaction (Giao dịch)** là một chuỗi các thao tác trên database được xử lý như một đơn vị công việc duy nhất. Có nghĩa là, hoặc tất cả các thao tác thành công (**Commit**), hoặc không có thao tác nào được áp dụng (**Rollback**).
 
 Transaction được định nghĩa bởi thuộc tính **ACID**:
@@ -13,21 +15,21 @@ Transaction được định nghĩa bởi thuộc tính **ACID**:
 - **I (Isolation - Tính cô lập)**: Các transaction chạy song song không can thiệp lẫn nhau.
 - **D (Durability - Tính bền vững)**: Dữ liệu đã commit sẽ được lưu trữ vĩnh viễn, kể cả khi mất điện hay sập hệ thống.
 
-### # Intermediate
+### Intermediate
 Để giải quyết bài toán Isolation khi nhiều luồng cùng truy cập dữ liệu, chuẩn SQL-92 định nghĩa 4 cấp độ cô lập (**Isolation Levels**):
 1. **Read Uncommitted**: Cho phép đọc dữ liệu chưa được commit của transaction khác. Gây ra hiện tượng **Dirty Read** (đọc phải dữ liệu rác sau đó bị rollback).
 2. **Read Committed**: Chỉ đọc dữ liệu đã commit. Tránh được *Dirty Read*, nhưng vẫn bị **Non-repeatable Read** (đọc lại cùng một bản ghi tại các thời điểm khác nhau trong cùng transaction cho ra kết quả khác nhau do transaction khác sửa đổi).
 3. **Repeatable Read**: Đảm bảo đọc cùng một bản ghi nhiều lần trong transaction sẽ luôn ra kết quả giống nhau. Tránh được *Non-repeatable Read*, nhưng có thể bị **Phantom Read** (đọc lại một dải dữ liệu thấy xuất hiện thêm hàng mới do transaction khác chèn thêm). Mức cô lập mặc định của MySQL (InnoDB).
 4. **Serializable**: Cấp độ cao nhất, ép các transaction chạy tuần tự. Tránh toàn bộ lỗi nhưng hiệu năng cực kỳ kém.
 
-### # Advanced
+### Advanced
 Ở mức độ nâng cao, ta nghiên cứu các chiến lược khóa (**Locking Strategies**):
 - **Optimistic Locking (Khóa lạc quan)**: Không khóa dữ liệu khi đọc. Thay vào đó, sử dụng một cột số phiên bản (`version` hoặc `timestamp`). Khi ghi dữ liệu, hệ thống so sánh phiên bản cũ. Nếu phiên bản đã bị thay đổi bởi luồng khác, hệ thống sẽ từ chối và ném ra Exception (ví dụ: `OptimisticLockException`). Thích hợp cho hệ thống Đọc nhiều - Ghi ít.
 - **Pessimistic Locking (Khóa bi quan)**: Khóa bản ghi ngay lập tức khi đọc để ngăn luồng khác sửa đổi cho đến khi transaction kết thúc. Sử dụng lệnh `SELECT ... FOR UPDATE` (Khóa độc quyền - Exclusive Lock) hoặc `SELECT ... SHARE` (Khóa chia sẻ - Shared Lock). Thích hợp cho hệ thống Ghi nhiều, tranh chấp cao.
 - **Shared Lock (S-Lock)**: Nhiều transaction có thể cùng giữ S-lock để đọc, nhưng không ai được sửa dữ liệu.
 - **Exclusive Lock (X-Lock)**: Chỉ một transaction được giữ X-lock để ghi, chặn hoàn toàn mọi hành vi đọc/ghi khác của luồng khác.
 
-### # Expert
+### Expert
 Ở mức độ tối thượng (Architect):
 - **MVCC (Multi-Version Concurrency Control)**: Cơ chế mà MySQL (InnoDB) và PostgreSQL sử dụng để thực thi cô lập mà không cần lock ngốn tài nguyên. Thay vì ghi đè trực tiếp, mỗi lần update sẽ tạo ra một phiên bản (version) mới của bản ghi. Khi đọc, database dựa trên **Read View** để hiển thị đúng phiên bản dữ liệu tương thích với thời điểm transaction bắt đầu. Nhờ MVCC, hành vi *Đọc không bao giờ chặn Ghi, và Ghi không bao giờ chặn Đọc*.
 - **InnoDB Gap Locks & Next-Key Locks**: Trong MySQL, để ngăn chặn hiện tượng *Phantom Read* ở mức cô lập *Repeatable Read*, InnoDB sử dụng **Next-Key Locks** (kết hợp Record Lock trên bản ghi và Gap Lock trên các khoảng trống xung quanh bản ghi đó), ngăn chặn việc chèn bản ghi mới vào dải dữ liệu đang quét.

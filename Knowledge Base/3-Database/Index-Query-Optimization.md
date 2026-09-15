@@ -2,27 +2,29 @@
 
 ---
 
+> **Mục tiêu đầu ra:** đọc được EXPLAIN, chọn index phù hợp và kiểm chứng cải thiện truy vấn bằng số liệu.
+
 ## 1. Khái niệm (Difficulty Breakdown)
 
-### # Beginner
+### Beginner
 Ở mức độ cơ bản:
 - **Database Index (Chỉ mục)**: Là một cấu trúc dữ liệu đặc biệt được lưu trữ riêng biệt, đóng vai trò như mục lục của một cuốn sách. Nó giúp hệ quản trị cơ sở dữ liệu (DBMS) tìm thấy các dòng dữ liệu cụ thể một cách nhanh chóng mà không cần phải thực hiện quét toàn bộ bảng (Table Scan).
 - **Table Scan (Quét toàn bảng - Seq Scan)**: Hành vi database phải đọc từng dòng từ đầu đến cuối bảng để tìm kiếm kết quả. Việc này cực kỳ chậm đối với các bảng có hàng triệu dòng.
 
-### # Intermediate
+### Intermediate
 Đi sâu vào cấu trúc dữ liệu chỉ mục:
 - **B-Tree Index (Balanced Tree - Cây cân bằng)**: Cấu trúc chỉ mục mặc định và phổ biến nhất. Dữ liệu được tổ chức theo cây tự cân bằng, đảm bảo các thao tác tìm kiếm, thêm, xóa, cập nhật có độ phức tạp thời gian là $O(\log n)$. Thích hợp cho cả tìm kiếm chính xác (`=`) và tìm kiếm dải (`>`, `<`, `BETWEEN`).
 - **Hash Index**: Dựa trên cấu trúc bảng băm (Hash Table). Độ phức tạp tìm kiếm cực nhanh $O(1)$ nhưng chỉ hỗ trợ so sánh bằng (`=`), không hỗ trợ tìm kiếm dải hoặc sắp xếp dữ liệu.
 - **Clustered Index (Chỉ mục cụm)**: Quy định thứ tự vật lý thực tế của dữ liệu được lưu trữ trên đĩa. Mỗi bảng chỉ có duy nhất **1** Clustered Index (thường là Primary Key).
 - **Non-Clustered Index (Chỉ mục thứ cấp)**: Chứa các trường được đánh chỉ mục và một con trỏ trỏ về dòng dữ liệu thực tế (chỉ vào Clustered Index key). Một bảng có thể có nhiều chỉ mục thứ cấp.
 
-### # Advanced
+### Advanced
 Ở mức độ tối ưu hóa nâng cao:
 - **Composite Index (Chỉ mục tổ hợp)**: Chỉ mục được tạo từ 2 cột trở lên (ví dụ: `INDEX(status, created_at)`). Cần tuân thủ tuyệt đối quy tắc **Leftmost Prefix Rule (Quy tắc tiền tố bên trái nhất)**: Chỉ mục chỉ được sử dụng nếu truy vấn tìm kiếm lọc theo cột đầu tiên của chỉ mục tổ hợp.
 - **Covering Index (Chỉ mục bao phủ)**: Tình huống tối ưu nhất khi tất cả các cột cần lấy dữ liệu trong câu lệnh `SELECT` đều nằm gọn trong cấu trúc của chính chỉ mục đó. Database chỉ cần đọc file chỉ mục và trả về kết quả ngay lập tức mà không cần tốn chi phí truy cập ngược về bộ nhớ đĩa chính để lấy dòng dữ liệu (loại bỏ bước **Key Lookup** hoặc **Bookmark Lookup**).
 - **EXPLAIN Plan (Kế hoạch thực thi)**: Câu lệnh tiền tố giúp phân tích cách Optimizer của DB thực hiện câu lệnh SQL (sử dụng Index nào, thứ tự kết hợp các bảng, số lượng dòng dự kiến quét).
 
-### # Expert
+### Expert
 Ở mức độ tối thượng (Architect):
 - **Database Partitioning (Phân vùng)**: Chia một bảng khổng lồ thành các phần nhỏ hơn về mặt vật lý (ví dụ: chia theo tháng `partition by range(created_at)`) nhưng vẫn giữ nguyên một bảng logic duy nhất đối với ứng dụng. Giúp thu hẹp phạm vi quét dữ liệu (Partition Pruning).
 - **Sharding (Phân mảnh theo chiều ngang)**: Giải pháp mở rộng hệ thống bằng cách phân chia dữ liệu của một bảng lớn ra nhiều Database Instance độc lập nằm trên các server vật lý khác nhau dựa trên một **Shard Key**.

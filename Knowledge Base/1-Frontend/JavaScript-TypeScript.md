@@ -2,14 +2,16 @@
 
 ---
 
+> **Mục tiêu đầu ra:** giải thích được Event Loop, dùng TypeScript type-safe và viết được repository generic đơn giản.
+
 ## 1. Khái niệm (Difficulty Breakdown)
 
-### # Beginner
+### Beginner
 Ở mức độ cơ bản:
 - **JavaScript (JS)**: Ngôn ngữ kịch bản nhẹ, đơn luồng (Single-threaded), chạy chủ yếu trên trình duyệt web (hoặc trên server qua Node.js). Có tính năng tự động thu gom rác và kiểu dữ liệu động (Dynamic typing).
 - **TypeScript (TS)**: Là một tập cha (Superset) của JavaScript, bổ sung tính năng kiểm tra kiểu dữ liệu tĩnh (Static typing) tại thời điểm biên dịch (Compile-time). Mã TS sau đó sẽ được transpile (biên dịch chéo) sang mã JS thuần để chạy trên môi trường runtime.
 
-### # Intermediate
+### Intermediate
 Đi sâu vào các cơ chế cốt lõi của ngôn ngữ:
 - **Scope & Closure**: **Scope** quyết định phạm vi truy cập của biến (Global, Function, Block). **Closure** là tính năng của JS cho phép một hàm ghi nhớ và truy cập vào scope bên ngoài của nó ngay cả khi hàm ngoài đã thực thi xong.
 - **Prototype-based Inheritance**: Khác với Java dùng Class-based, JS sử dụng **Prototype** để kế thừa thuộc tính và phương thức. Mọi đối tượng trong JS đều có một liên kết ngầm đến một đối tượng khác gọi là prototype của nó, tạo nên **Prototype Chain**.
@@ -17,7 +19,7 @@
   - **Microtask Queue**: Chứa Promise callbacks, `queueMicrotask`, `MutationObserver`. Được ưu tiên chạy hết trước.
   - **Macrotask/Callback Queue**: Chứa `setTimeout`, `setInterval`, I/O operations. Chạy sau khi Microtask Queue đã trống.
 
-### # Advanced
+### Advanced
 Ở mức nâng cao với TypeScript:
 - **Generics**: Cho phép định nghĩa hàm, class, interface hoạt động với nhiều kiểu dữ liệu khác nhau mà vẫn giữ được tính an toàn kiểu dữ liệu (Type-safe).
 - **Utility Types**:
@@ -27,7 +29,7 @@
   - `Record<K, T>`: Tạo một kiểu đối tượng với khóa thuộc K và giá trị thuộc T.
 - **Conditional Types**: Cho phép chọn kiểu dữ liệu dựa trên biểu thức điều kiện (Ví dụ: `T extends U ? X : Y`).
 
-### # Expert
+### Expert
 Ở mức độ tối thượng (Architect):
 - **Template Literal Types**: Kết hợp với kiểu chuỗi để sinh ra các kiểu dữ liệu động tinh vi (Ví dụ: Định nghĩa kiểu của CSS class hoặc route path dạng `` `/api/${string}` ``).
 - **Covariance (Đồng biến) và Contravariance (Nghịch biến)**: Khái niệm toán học quy định tính tương thích kiểu dữ liệu khi truyền tham số hoặc kiểu trả về của các Hàm (Functions) kế thừa. Tham số hàm có tính chất contravariant (chấp nhận kiểu cha rộng hơn), trong khi kiểu trả về của hàm có tính chất covariant (chấp nhận kiểu con hẹp hơn).

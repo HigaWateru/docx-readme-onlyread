@@ -2,14 +2,16 @@
 
 ---
 
+> **Mục tiêu đầu ra:** chọn kiến trúc dựa trên trade-off và thiết kế flow phân tán có consistency, retry và observability.
+
 ## 1. Khái niệm (Difficulty Breakdown)
 
-### # Beginner
+### Beginner
 Ở mức độ cơ bản:
 - **Monolith Architecture (Kiến trúc nguyên khối)**: Là mô hình thiết kế phần mềm truyền thống, trong đó tất cả các thành phần chức năng (UI, Business Logic, Database Access) của ứng dụng được đóng gói và triển khai thành một khối duy nhất (Single Deployable Unit - ví dụ: tệp `.war` hoặc `.jar` chạy trên một máy chủ).
 - **Microservices Architecture (Kiến trúc dịch vụ nhỏ)**: Là mô hình chia ứng dụng thành một tập hợp các dịch vụ nhỏ, độc lập. Mỗi dịch vụ chạy trong một tiến trình riêng, đảm nhận một nghiệp vụ cụ thể (Single Responsibility), giao tiếp với nhau qua các giao thức nhẹ như HTTP REST API hoặc Message Brokers, và có thể được triển khai độc lập.
 
-### # Intermediate
+### Intermediate
 Đi sâu hơn vào chi tiết thiết kế:
 - **Database-per-service**: Trong Microservices, mỗi service sở hữu một database riêng. Một service không được phép truy cập trực tiếp (Direct Query) vào database của service khác để đảm bảo tính cô lập và tránh xung đột schema dữ liệu.
 - **IPC (Inter-Process Communication)**: Các dịch vụ giao tiếp qua hai hình thức:
@@ -17,14 +19,14 @@
   - *Bất đồng bộ (Asynchronous)*: Message Broker như RabbitMQ, Apache Kafka (tăng tính chịu lỗi, giảm liên kết lỏng lẻo).
 - **Service Discovery**: Cơ chế giúp các microservice tự động đăng ký và tìm thấy địa chỉ IP/Port của nhau khi chạy động trong môi trường container (ví dụ: Eureka, Consul).
 
-### # Advanced
+### Advanced
 Ở mức độ nâng cao, ta giải quyết bài toán giao dịch phân tán (Distributed Transactions) và tính nhất quán dữ liệu (Data Consistency):
 - **Saga Pattern**: Giải quyết giao dịch phân tán kéo dài trên nhiều microservices mà không dùng cơ chế chặn 2-Phase Commit (2PC) vốn làm chậm hệ thống. Saga chia giao dịch lớn thành một chuỗi các giao dịch cục bộ (Local Transactions). Nếu một bước thất bại, Saga kích hoạt các **Giao dịch bù trừ (Compensating Transactions)** để hoàn tác (Rollback) các bước trước đó.
   - *Choreography (Biên đạo)*: Các dịch vụ tự phản ứng thông qua các Event/Message (không có người điều phối trung tâm).
   - *Orchestration (Dàn dựng)*: Có một Service Orchestrator điều phối trung tâm, ra lệnh cho các service chạy từng bước.
 - **Transactional Outbox Pattern**: Đảm bảo việc cập nhật Database và phát Event (Publish Message) tới Message Broker diễn ra atomically. Nó ghi Event vào một bảng tạm `outbox` ngay trong transaction của DB chính, sau đó có một tiến trình riêng (`Debezium` hoặc polling worker) đọc bảng `outbox` để đẩy sang Kafka/RabbitMQ.
 
-### # Expert
+### Expert
 Ở mức độ tối thượng (Architect):
 - **Domain-Driven Design (DDD)**: Sử dụng khái niệm **Bounded Context** để xác định biên giới phân chia các Microservices hợp lý nhất, tránh tình trạng thiết kế ra các "Distributed Monolith" (hệ thống phân tán nhưng các service bị phụ thuộc chặt chẽ vào nhau).
 - **CQRS (Command Query Responsibility Segregation)**: Tách biệt hoàn toàn luồng ghi (Command) và luồng đọc (Query) dữ liệu. Thường kết hợp với **Event Sourcing** (lưu trữ lịch sử thay đổi dưới dạng chuỗi các sự kiện liên tục thay vì chỉ lưu trạng thái hiện tại).

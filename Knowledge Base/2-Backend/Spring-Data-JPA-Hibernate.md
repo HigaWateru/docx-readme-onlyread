@@ -2,15 +2,17 @@
 
 ---
 
+> **Mục tiêu đầu ra:** thiết kế entity và repository đúng, tránh N+1/LazyInitializationException và tối ưu truy vấn JPA.
+
 ## 1. Khái niệm (Difficulty Breakdown)
 
-### # Beginner
+### Beginner
 Ở mức độ cơ bản:
 - **ORM (Object-Relational Mapping)**: Kỹ thuật lập trình giúp bản đồ hóa (mapping) các đối tượng trong ngôn ngữ lập trình hướng đối tượng (như các Java Class) vào các bảng dữ liệu tương ứng trong cơ sở dữ liệu quan hệ (RDBMS).
 - **JPA (Jakarta Persistence API)**: Tập hợp các đặc tả (Specification) và giao diện tiêu chuẩn (Interface) do Oracle/Jakarta định nghĩa cho ORM trong Java. JPA chỉ là lý thuyết và không chứa mã thực thi.
 - **Hibernate**: Là một thư viện framework cụ thể triển khai (Implementation) các đặc tả của JPA. Nó cung cấp các mã chạy thực tế để tương tác với cơ sở dữ liệu.
 
-### # Intermediate
+### Intermediate
 Đi sâu vào cơ chế quản lý trạng thái của Hibernate:
 - **Persistence Context (Ngữ cảnh bền vững)**: Đóng vai trò như một bộ nhớ đệm cấp 1 (First-level Cache), quản lý tất cả các đối tượng Entity đang hoạt động trong phiên làm việc hiện tại (**EntityManager** hoặc **Session**).
 - **Entity Lifecycle States**: Một thực thể có thể nằm trong 4 trạng thái:
@@ -22,7 +24,7 @@
   - `LAZY`: Trì hoãn việc tải dữ liệu liên quan từ DB cho đến khi thực sự gọi getter (Sử dụng Hibernate Proxy).
   - `EAGER`: Tự động tải tất cả dữ liệu liên quan ngay lập tức bằng câu lệnh JOIN.
 
-### # Advanced
+### Advanced
 Ở mức độ nâng cao:
 - **N+1 Select Problem**: Lỗi kinh điển trong ORM xảy ra khi ta truy vấn một danh sách $N$ đối tượng cha, và đối với mỗi đối tượng cha, Hibernate lại thực hiện thêm 1 câu lệnh truy vấn phụ để lấy dữ liệu con liên quan. Tổng số câu lệnh là $N+1$ câu lệnh SELECT, làm giảm sập hiệu năng DB.
 - **Dirty Checking (Kiểm tra thay đổi ngầm)**: Cơ chế mà Hibernate tự động so sánh trạng thái hiện tại của Entity trong Persistence Context với bản chụp trạng thái ban đầu của nó (Snapshot). Nếu phát hiện có sự thay đổi (dirty), Hibernate sẽ tự động sinh câu lệnh `UPDATE` tương ứng khi transaction commit mà không cần gọi hàm `.save()` hoặc `.update()` thủ công.
@@ -30,7 +32,7 @@
   - **L1 Cache**: Mặc định, gắn liền với Session hiện tại. Chỉ hoạt động trong phạm vi 1 transaction duy nhất.
   - **L2 Cache**: Hoạt động xuyên suốt giữa các Session khác nhau, được cấu hình qua các thư viện ngoài như Ehcache hoặc Redis.
 
-### # Expert
+### Expert
 Ở mức độ tối thượng (Architect):
 - **Batch Fetching & Batch Inserts**: Cấu hình `spring.jpa.properties.hibernate.jdbc.batch_size` kết hợp với `@BatchSize` giúp gộp hàng trăm câu lệnh chèn dữ liệu (`INSERT`) hoặc lấy dữ liệu con (`SELECT`) thành một lô (batch) duy nhất để truyền nhận qua mạng tới DB, giảm thiểu tối đa các đợt Network Roundtrips.
 - **DynamicUpdate Annotation**: Mặc định, Hibernate luôn cập nhật tất cả các cột của bảng trong câu lệnh `UPDATE` kể cả các cột không thay đổi giá trị. Đánh dấu `@DynamicUpdate` trên Entity giúp Hibernate chỉ sinh ra SQL cho các cột thực sự thay đổi dữ liệu, giảm thiểu chi phí ghi log của Database và tối ưu hóa hiệu năng ghi.

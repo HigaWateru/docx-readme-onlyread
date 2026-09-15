@@ -2,16 +2,18 @@
 
 ---
 
+> **Mục tiêu đầu ra:** chọn Kafka hoặc RabbitMQ theo workload, thiết kế consumer có retry, DLQ và chống xử lý trùng.
+
 ## 1. Khái niệm (Difficulty Breakdown)
 
-### # Beginner
+### Beginner
 Ở mức độ cơ bản:
 - **Message Broker (Bộ trung chuyển tin nhắn)**: Hệ thống phần mềm trung gian cho phép các ứng dụng giao tiếp và trao đổi dữ liệu với nhau một cách bất đồng bộ (Asynchronously) mà không cần kết nối trực tiếp.
 - **Mô hình Giao tiếp**:
   - **Point-to-Point (Queue - Điểm tới Điểm)**: Một Producer gửi tin nhắn vào hàng đợi (Queue), chỉ duy nhất một Consumer nhận và xử lý tin nhắn đó. Sau khi xử lý xong, tin nhắn bị xóa khỏi hàng đợi.
   - **Publish/Subscribe (Pub/Sub - Phát/Đăng ký)**: Một Producer (Publisher) phát tin nhắn vào một chủ đề (Topic/Exchange), nhiều Consumer (Subscribers) quan tâm đến chủ đề đó đều nhận được bản sao của tin nhắn để xử lý độc lập.
 
-### # Intermediate
+### Intermediate
 Đi sâu vào kiến trúc cụ thể của từng hệ thống:
 - **RabbitMQ (AMQP Protocol)**: Là một Message Broker truyền thống dựa trên kiến trúc **Smart Broker / Dumb Consumer**. Nó chịu trách nhiệm định tuyến tinh vi:
   - **Producer** gửi tin nhắn tới **Exchange**.
@@ -22,7 +24,7 @@
   - Tin nhắn được ghi tuần tự vào Partition và gán một số chỉ mục tăng dần gọi là **Offset**. Tin nhắn không bị xóa đi sau khi đọc, nó được lưu trữ theo thời gian cấu hình (Retention Time).
   - **Consumer Groups**: Tập hợp các consumer cùng chia sẻ việc đọc dữ liệu từ các partitions của một Topic. Một partition chỉ được đọc bởi duy nhất 1 consumer trong group tại một thời điểm để đảm bảo tính thứ tự dữ liệu.
 
-### # Advanced
+### Advanced
 Ở mức nâng cao:
 - **Message Delivery Semantics (Độ tin cậy truyền tin)**:
   - **At-most-once (Tối đa một lần)**: Tin nhắn có thể bị mất nhưng không bao giờ bị lặp.
@@ -31,7 +33,7 @@
 - **Consumer Group Rebalance trong Kafka**: Tiến trình phân bổ lại quyền đọc các Partitions cho các Consumers khi có một Consumer mới tham gia hoặc một Consumer cũ bị sập (ngừng gửi heartbeat). Trong quá trình rebalance, việc đọc dữ liệu có thể bị ngưng trệ tạm thời (Stop-the-world).
 - **Dead Letter Queue (DLQ - Hàng đợi thư chết)**: Pattern xử lý lỗi. Khi một tin nhắn bị lỗi xử lý liên tục (ví dụ do lỗi dữ liệu đầu vào), thay vì block toàn bộ hàng đợi, ta chuyển tin nhắn đó sang một hàng đợi riêng (DLQ) để phân tích thủ công sau.
 
-### # Expert
+### Expert
 Ở mức độ tối thượng (Architect):
 - **Kafka Exactly-Once Semantics (EOS)**: Đạt được nhờ sự kết hợp giữa **Idempotent Producer** (gán ID cho mỗi lô tin nhắn để broker tự loại bỏ trùng lặp) và **Transactions API** (cho phép ghi tin nhắn lên nhiều topic/partition kết hợp cập nhật consumer offsets trong một transaction nguyên tử duy nhất).
 - **Backpressure Handling (Kiểm soát áp lực ngược)**: Thiết kế giải pháp ngăn chặn việc Consumer bị quá tải (tràn bộ nhớ RAM) khi tốc độ phát tin nhắn của Producer nhanh hơn gấp nhiều lần tốc độ xử lý của Consumer (sử dụng cơ chế Pull của Kafka hoặc giới hạn Prefetch Count của RabbitMQ).
